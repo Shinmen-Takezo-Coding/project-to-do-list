@@ -1,4 +1,3 @@
-import "./styles.css"; // Keeps Vite's default styles happy
 import { Task, PRIORITIES } from "./core/Task.js";
 import { Project } from "./core/Project.js";
 import { AppController } from "./controller/AppController.js";
