@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To Do List</title>
+    <link rel="stylesheet" href="./src/styles.css">
+  </head>
+  <body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="logo-section">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" class="brand-logo">
+          <rect x="3" y="3" width="18" height="18" rx="6" ry="6" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></rect>
+          <path d="M8 12.5l2.5 2.5 5-5" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <h2>To Do List</h2>
+      </div>
+      
+      <ul class="nav-group">
+        <!-- 1. THE PRIMARY ACTION -->
+        <li class="nav-item add-task-wrapper">
+          <button id="global-add-task-btn" class="add-task-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Add Task</span>
+          </button>
+        </li>
+
+        <!-- 2. SYSTEM NAVIGATION ROUTES -->
+        <!-- Note: 'active' class makes this one stay green to show it is the current view -->
+        <li class="nav-item">
+          <button class="nav-route-btn" data-route="inbox">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+            <span>Inbox</span>
+          </button>
+        </li>
+
+        <li class="nav-item">
+          <button class="nav-route-btn" data-route="today">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <polyline points="12 7 12 12 16 14"/>
+            </svg>
+            <span>Today</span>
+          </button>
+        </li>
+
+        <li class="nav-item">
+          <button class="nav-route-btn" data-route="upcoming">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span>Upcoming</span>
+          </button>
+        </li>
+      </ul>
+
+      <ul class="nav-group">
+        <li class="nav-item">
+          <button class="nav-route-btn" data-route="my-projects">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span>My Projects</span>
+          </button>
+        </li>
+
+        <li class="nav-item">
+          <button class="nav-route-btn" data-route="completed">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span>Completed</span>
+          </button>
+        </li>
+      </ul>
+
+      
+    </aside>
+
+    <main class="main-content" id="main-viewport">
+    </main>
+  </div>
+
+  <dialog id="task-modal" class="task-form-modal">
+    <form id="todo-form" method="dialog">
+      <h2>Add New Task</h2>
+      <hr class="form-divider">
+
+      <div class="form-group">
+        <label for="task-title">Title</label>
+        <input type="text" id="task-title" placeholder="e.g., Finish Prototypical Inheritance" required>
+      </div>
+
+      <div class="form-group">
+        <label for="task-desc">Description</label>
+        <textarea id="task-desc" placeholder="e.g., Read curriculum docs and test modules"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="task-project">Project</label>
+          <select id="task-project">
+            <option value="inbox-default-id">Inbox</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+          <label for="task-date">Due Date</label>
+          <input type="date" id="task-date" required>
+        </div>
+
+        <div class="form-group">
+          <label for="task-priority">Priority</label>
+          <select id="task-priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" id="close-modal-btn" class="form-btn-secondary">Cancel</button>
+        <button type="submit" id="submit-task-btn" class="form-btn-primary">Create Task</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="./src/index.js"></script>
+
+  </body>
+</html>

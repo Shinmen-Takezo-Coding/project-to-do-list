@@ -1,0 +1,635 @@
+/* ==========================================================================
+   1. FONTS & VARIABLES
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Colors */
+  --sb-bg-base: #171717;
+  --sb-bg-surface: #0f0f0f;
+  --sb-bg-card: #1c1c1c;
+  --sb-bg-hover: #2e2e2e;
+
+  --sb-text-high: #fafafa;
+  --sb-text-normal: #b4b4b4;
+  --sb-text-muted: #898989;
+
+  --sb-brand-primary: #3ecf8e;
+  --sb-brand-hover: #00c573;
+  --sb-brand-border: rgba(62, 207, 142, 0.3);
+
+  --sb-border-base: #242424;
+  --sb-border-card: #2e2e2e;
+
+  --sb-danger: #E05D57;
+  --sb-warning: #E8A84C;
+  --sb-info: #3E90CF;
+
+  /* Typography */
+  --sb-font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --sb-font-mono: "JetBrains Mono", monospace;
+
+  --sb-fs-xs: 12px;
+  --sb-fs-sm: 14px;
+  --sb-fs-base: 16px;
+  --sb-fs-md: 18px;
+  --sb-fs-lg: 24px;
+
+  --sb-fw-normal: 400;
+  --sb-fw-medium: 500;
+  --sb-fw-semibold: 600;
+  --sb-fw-bold: 700;
+
+  /* Spacing */
+  --sb-space-xs: 4px;
+  --sb-space-sm: 8px;
+  --sb-space-md: 12px;
+  --sb-space-lg: 16px;
+  --sb-space-xl: 24px;
+  --sb-space-xxl: 40px;
+}
+
+/* ==========================================================================
+   2. GLOBAL RESET
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--sb-font-sans);
+}
+
+html, body {
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--sb-bg-base);
+  color: var(--sb-text-normal);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   3. STRUCTURAL LAYOUT
+   ========================================================================== */
+.app-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background-color: var(--sb-bg-base);
+  border-right: 1px solid var(--sb-border-base);
+  padding: var(--sb-space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sb-space-xl);
+  overflow-y: auto;
+}
+
+.main-content {
+  flex-grow: 1;
+  background-color: var(--sb-bg-surface);
+  padding: var(--sb-space-xxl);
+  overflow-y: auto;
+}
+
+/* ==========================================================================
+   4. TYPOGRAPHY & LISTS
+   ========================================================================== */
+h2, h3, .sidebar h2, .sidebar h3 {
+  color: var(--sb-text-high) !important;
+  font-weight: var(--sb-fw-bold);
+}
+
+.nav-group {
+  list-style: none !important;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-group li {
+  list-style: none !important;
+}
+
+/* ==========================================================================
+   5. NAVIGATION & BUTTONS
+   ========================================================================== */
+/* Shared Base Styles */
+.add-task-btn,
+.nav-route-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--sb-space-md);
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 6px !important;
+  outline: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--sb-text-normal);
+  font-size: var(--sb-fs-sm);
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+/* Specific Font Weights */
+.add-task-btn {
+  font-weight: var(--sb-fw-semibold);
+}
+
+.nav-route-btn {
+  font-weight: var(--sb-fw-normal);
+}
+
+/* SVG Icon Alignment */
+.add-task-btn svg,
+.nav-route-btn svg {
+  flex-shrink: 0;
+  stroke: currentColor;
+  fill: none;
+  transition: stroke 0.2s ease;
+}
+
+/* Shared Hover States */
+.add-task-btn:hover,
+.nav-route-btn:hover {
+  color: var(--sb-brand-primary) !important;
+  background-color: var(--sb-bg-hover) !important;
+}
+
+.nav-route-btn[data-active="true"] {
+  background-color: rgba(16, 185, 129, 0.12) !important; /* Low-opacity Emerald green */
+  color: #10b981 !important;                             /* Crisp emerald text/icon matching color */
+  font-weight: var(--sb-fw-medium);
+}
+
+/* --- Inline Viewport Add Buttons Only --- */
+
+.dashboard-container .add-task-btn {
+  background-color: transparent !important;
+  color: var(--sb-text-muted); /* Or your standard muted color */
+}
+
+.dashboard-container .add-task-btn:hover {
+  background-color: transparent !important;
+  color: #10b981; 
+}
+
+/* Stripped transitions and shrunk padding for a tight, snappy circle */
+.dashboard-container .add-task-btn svg {
+  width: 20px;               
+  height: 20px;
+  box-sizing: content-box;   
+  border-radius: 50%;
+  padding: 0px;              /* Shrunk from 4px to tighten the circle radius */
+  margin: -2px;              /* Adjusted to keep text layout perfectly static */
+}
+
+/* Removed transition here too so the color flash is instant */
+.dashboard-container .add-task-btn:hover svg {
+
+  background-color: #10b981; 
+  stroke: #ffffff;           
+}
+
+/* The dark overlay behind the modal */
+.task-form-modal::backdrop {
+  background: rgba(9, 9, 11, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+/* The main modal canvas */
+.task-form-modal {
+  background-color: #18181b; /* Deep SaaS gray */
+  color: #f4f4f5; /* High contrast white */
+  border: 1px solid #3f3f46;
+  border-radius: 12px;
+  padding: 24px 32px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  margin: auto;
+}
+
+.task-form-modal h2 {
+  margin: 0 0 16px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.form-divider {
+  border: 0;
+  height: 1px;
+  background-color: #27272a;
+  margin-bottom: 24px;
+}
+
+#todo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Using Grid for a perfect 3-column split */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #a1a1aa; /* Muted gray for labels to keep focus on inputs */
+}
+
+input[type="text"],
+input[type="date"],
+textarea,
+select {
+  background-color: #27272a;
+  color: #e4e4e7;
+  border: 1px solid #3f3f46;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+  outline: none;
+}
+
+textarea {
+  min-height: 80px;
+  resize: vertical; /* Only allow up/down resizing to preserve your grid */
+}
+
+/* The high-contrast interaction state */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #e4e4e7; 
+}
+
+/* Styling the placeholder text */
+input::placeholder,
+textarea::placeholder {
+  color: #52525b;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+button {
+  cursor: pointer;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.1s ease;
+}
+
+.form-btn-secondary {
+  background-color: transparent;
+  color: #a1a1aa;
+  border: 1px solid transparent;
+}
+
+.form-btn-secondary:hover {
+  background-color: #27272a;
+  color: #e4e4e7;
+}
+
+.form-btn-primary {
+  /* Using your design's core accent color */
+  background-color: #10b981; /* Emerald green */
+  color: #09090b; /* Keeps text contrast crisp and deep */
+  border: 1px solid transparent;
+  font-weight: 600;
+}
+
+.form-btn-primary:hover {
+  /* Shifts smoothly into a vibrant luminescent green on mouse hover */
+  background-color: #34d399; 
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2); /* Soft green neon glow effect */
+}
+
+/* 1. State when closed: hidden slightly lower and completely transparent */
+.task-form-modal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* 2. State when opened: snaps to its true center position and fades in */
+.task-form-modal[open] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+
+
+/* --- Base Layout --- */
+.task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: transparent; /* Allows the dark dashboard background to show */
+  border-bottom: 1px solid #2e2e32; /* Subtle divider lines */
+  transition: background-color 0.15s ease;
+}
+
+
+/* --- Left Column: The Ring --- */
+.checkbox-column {
+  padding-top: 2px; /* Aligns the ring with the center of the text */
+}
+
+/* Base Ring Setup */
+.priority-ring {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  appearance: none;
+  outline: none;
+  margin: 0;
+  
+  /* 👇 NEW: Flexbox to perfectly center the checkmark inside */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  --ring-color: #5a5a60; 
+  --ring-bg: rgba(90, 90, 96, 0.15); 
+  
+  border: 2px solid var(--ring-color);
+  background-color: var(--ring-bg);
+  transition: all 0.15s ease;
+}
+
+/* The Hidden Checkmark */
+.priority-ring::after {
+  content: '';
+  width: 10px;  /* Size of the checkmark */
+  height: 10px;
+  
+  /* Automatically grabs the Red, Orange, or Blue based on the class! */
+  background-color: var(--ring-color); 
+  
+  /* Carves the background color into a checkmark shape */
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+
+  /* Hidden by default */
+  opacity: 0; 
+  transition: opacity 0.15s ease-in-out;
+}
+
+/* 👇 The Magic Trigger: Fade the checkmark in when hovered */
+.priority-ring:hover::after {
+  opacity: 1;
+}
+
+
+/* Priority Overrides (Using your exact hex codes) */
+.priority-ring.high { 
+  --ring-color: #eb5757; 
+  --ring-bg: rgba(235, 87, 87, 0.15); 
+}
+
+.priority-ring.medium { 
+  --ring-color: #f2994a; 
+  --ring-bg: rgba(242, 153, 74, 0.15); 
+}
+
+.priority-ring.low { 
+  --ring-color: #2d9cdb; 
+  --ring-bg: rgba(45, 156, 219, 0.15); 
+}
+
+
+/* --- Right Column: The Text Stack --- */
+.content-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.task-title {
+  color: #e1e1e6; /* High contrast off-white */
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.task-desc {
+  color: #8b949e; /* Muted gray/blue for secondary info */
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* --- The SVG Date Footer --- */
+.due-date {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Space between SVG and Text */
+  color: #d97706; /* The specific orange/amber color from your image */
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* Because the SVG stroke is 'currentColor', it will automatically turn #d97706! */
+.date-icon {
+  opacity: 0.9;
+}
+
+/* --- Page Shell Layout --- */
+
+#main-viewport {
+  flex: 1;
+  height: 100vh;
+  overflow-y: auto; 
+}
+
+.dashboard-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 32px;
+}
+
+.page-title {
+  color: #ffffff;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- The Inline Add Task Button --- */
+.add-task-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: #8b949e; /* Muted gray */
+  border: none;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: color 0.15s ease;
+  margin-top: 8px; /* Slight gap from the last task */
+}
+
+.add-task-btn:hover {
+  color: #e1e1e6; 
+}
+
+.plus-icon {
+  color: var(--sb-text-muted);  /* This matches your sidebar text weights */
+}
+
+/* ==========================================================================
+   6 or 7. My Projects Tab
+   ========================================================================== */
+
+/* The Form Container */
+.inline-creation-form {
+  display: flex;
+  align-items: center;
+  gap: var(--sb-space-sm);
+  margin-top: var(--sb-space-sm);
+  width: 100%;
+}
+
+/* The Input Box */
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  background-color: #27272a; /* Matching your modal input color */
+  border: 1px solid #3f3f46;
+  border-radius: 6px;
+  padding: 0 12px;
+  height: 36px;
+}
+
+.hashtag-prefix {
+  color: var(--sb-text-muted);
+  font-size: var(--sb-fs-md);
+  margin-right: 8px;
+  user-select: none;
+}
+
+.input-wrapper input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--sb-text-high);
+  width: 100%;
+  padding: 0;
+}
+
+/* The Square Action Buttons */
+.form-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancel-btn {
+  background-color: #3f3f46;
+  color: var(--sb-text-normal);
+}
+
+.cancel-btn:hover {
+  background-color: #52525b;
+  color: var(--sb-text-high);
+}
+
+.submit-btn {
+  /* Using Todoist's red or your own --sb-danger */
+  background-color: var(--sb-danger); 
+  color: #fff;
+}
+
+.submit-btn:hover {
+  filter: brightness(1.1);
+}
+
+
+/* --- Sidebar Branding --- */
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;           /* Perfect breathing room between the logo and text */
+  padding: 0 14px;     /* Aligns the logo perfectly with the left edge of your nav buttons */
+}
+
+.brand-logo {
+  flex-shrink: 0;      /* Prevents the logo from ever getting squished */
+}
+
+.logo-section h2 {
+  margin: 0;           /* Strips default browser margins */
+  font-size: 20px;     /* Keeps it punchy */
+  font-weight: 700;
+  color: var(--sb-text-normal); /* Or #ffffff */
+  letter-spacing: -0.02em;      /* Slight negative tracking for a modern tech font look */
+}
+
+#new-project-input {
+  /* ... keep your existing borders, padding, and backgrounds ... */
+  
+  font-size: 14px;              /* Standard crisp body size */
+  line-height: 20px;            /* 👈 FORCES the caret to be exactly 20px tall from the start */
+  padding: 8px 0;               /* Balanced vertical breathing room */
+  display: inline-block;
+  vertical-align: middle;
+}
