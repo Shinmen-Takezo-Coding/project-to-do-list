@@ -1,5 +1,5 @@
-import { ProjectCard } from "../components/ProjectCard";
-import { projectList } from "../..";
+import { ProjectCard } from "../components/ProjectCard.js";
+import { projectList } from "../../index.js";
 
 export const ProjectsDashboardView = {
   render(projectsArray, pageTitle = "My Projects") {
