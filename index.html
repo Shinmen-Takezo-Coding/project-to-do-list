@@ -137,6 +137,62 @@
     </form>
   </dialog>
 
+  <dialog id="delete-confirm-modal" class="task-form-modal" style="max-width: 400px; text-align: center; padding: 32px;">
+    <h2 style="margin-bottom: 8px;">Delete Task?</h2>
+    <p style="color: #a1a1aa; font-size: 0.875rem; margin-bottom: 24px;">
+        This action cannot be undone. Are you sure you want to permanently remove this task?
+    </p>
+    
+    <div style="display: flex; gap: 12px; justify-content: center;">
+        <button id="cancel-delete-btn" class="form-btn-secondary" style="width: 45%;">Cancel</button>
+        <button id="confirm-delete-btn" class="form-btn-primary" style="width: 45%; background-color: #ef4444; color: white;">Delete</button>
+    </div>
+</dialog>
+
+<dialog id="edit-task-modal" class="task-form-modal">
+    <form id="edit-todo-form" method="dialog">
+      <h2>Edit Task</h2>
+      <hr class="form-divider">
+
+      <div class="form-group">
+        <label for="edit-task-title">Title</label>
+        <input type="text" id="edit-task-title" required>
+      </div>
+
+      <div class="form-group">
+        <label for="edit-task-desc">Description</label>
+        <textarea id="edit-task-desc"></textarea>
+      </div>
+
+      <div class="form-row">
+        <!-- Notice the order matches your original: Project, Date, Priority -->
+        <div class="form-group">
+          <label for="edit-task-project">Project</label>
+          <select id="edit-task-project"></select>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-task-date">Due Date</label>
+          <input type="date" id="edit-task-date" required>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-task-priority">Priority</label>
+          <select id="edit-task-priority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" id="close-edit-modal-btn" class="form-btn-secondary">Cancel</button>
+        <button type="submit" id="submit-edit-task-btn" class="form-btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </dialog>
+
   <script type="module" src="./src/index.js"></script>
 
   </body>

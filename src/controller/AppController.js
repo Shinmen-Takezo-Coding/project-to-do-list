@@ -8,6 +8,9 @@ import { Project } from "../core/Project.js";
 
 export const AppController = (() => {
 
+    let currentTaskToDelete = null; // Remembers the ID while the modal is open
+    let currentTaskToEdit = null;
+    const deleteModal = document.getElementById("delete-confirm-modal");
     const addTaskBtn = document.querySelector("#global-add-task-btn");
     const sidebar = document.querySelector(".sidebar");
     const closeModalBtn = document.getElementById('close-modal-btn');
@@ -55,9 +58,24 @@ export const AppController = (() => {
     };
 
     const bindModalEvents = () => {
-
+        
+        // ==========================================
+        // 1. ADD TASK MODAL
+        // ==========================================
         addTaskBtn.addEventListener("click", ()=> {
             populateProjectDropdown();
+            
+            // 👇 NEW: Inject date right before opening
+            if (currentActiveRoute === "today") {
+                const d = new Date();
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                document.getElementById("task-date").value = `${year}-${month}-${day}`;
+            } else {
+                document.getElementById("task-date").value = ""; 
+            }
+
             taskModal.showModal();
         });
 
@@ -69,18 +87,105 @@ export const AppController = (() => {
         todoForm.addEventListener("submit", (event) => {
             event.preventDefault();
 
-        const taskData = {
-            title: document.getElementById("task-title").value,
-            description: document.getElementById("task-desc").value,
-            project: document.getElementById("task-project").value,
-            dueDate: document.getElementById("task-date").value,
-            priority: document.getElementById("task-priority").value,
-        };
+            const taskData = {
+                title: document.getElementById("task-title").value,
+                description: document.getElementById("task-desc").value,
+                project: document.getElementById("task-project").value,
+                dueDate: document.getElementById("task-date").value,
+                priority: document.getElementById("task-priority").value,
+            };
+            
             forwardTaskData(taskData);
             renderCurrentView();
             todoForm.reset();
             taskModal.close();
+        });
 
+        // ==========================================
+        // 2. DELETE CONFIRMATION MODAL
+        // ==========================================
+        const deleteModal = document.getElementById("delete-confirm-modal");
+
+        deleteModal.addEventListener("click", (event) => {
+            
+            // CANCEL ROUTE
+            if (event.target.closest("#cancel-delete-btn")) {
+                currentTaskToDelete = null; // Clear memory
+                deleteModal.close();
+            }
+
+            // EXECUTE ROUTE
+            if (event.target.closest("#confirm-delete-btn")) {
+                if (currentTaskToDelete) {
+                    
+                    projectList.forEach(project => {
+                        project.removeTask(currentTaskToDelete); 
+                    });
+
+                    currentTaskToDelete = null; // Clear memory
+                    deleteModal.close();
+                    
+                    // The UI wipes the deleted task away instantly
+                    renderCurrentView(); 
+                }
+            }
+        });
+
+        // ==========================================
+        // 3. EDIT TASK MODAL
+        // ==========================================
+        const editModal = document.getElementById("edit-task-modal");
+        const editForm = document.getElementById("edit-todo-form");
+        const closeEditBtn = document.getElementById("close-edit-modal-btn");
+
+        // Cancel Button
+        closeEditBtn.addEventListener("click", () => {
+            editForm.reset();
+            editModal.close();
+            currentTaskToEdit = null;
+        });
+
+        // Save Changes Submission
+        editForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            // 1. Find the target task and its current project
+            let targetTask = null;
+            let oldProject = null;
+            projectList.forEach(project => {
+                const found = project.tasks.find(t => t._id === currentTaskToEdit);
+                if (found) {
+                    targetTask = found;
+                    oldProject = project;
+                }
+            });
+
+            if (targetTask) {
+                // 2. Update the properties using your Class Setters
+                targetTask.title = document.getElementById("edit-task-title").value;
+                targetTask.description = document.getElementById("edit-task-desc").value;
+                targetTask.priority = document.getElementById("edit-task-priority").value;
+                
+                // 👇 THE FIX: Save the new date back to the task object
+                targetTask.dueDate = document.getElementById("edit-task-date").value;
+
+                // 3. Handle Project Re-routing (if the user changed the folder)
+                const newProjectId = document.getElementById("edit-task-project").value;
+                if (targetTask.projectId !== newProjectId) {
+                    const newProject = projectList.find(p => p.id === newProjectId);
+                    if (newProject) {
+                        oldProject.removeTask(targetTask.id); // Evict from old
+                        targetTask.projectId = newProjectId;  // Update internal ID
+                        newProject.addTask(targetTask);       // Move to new
+                    }
+                }
+            }
+
+            // 4. Clean up and Refresh UI
+            renderCurrentView();
+            editForm.reset();
+            editModal.close();
+            currentTaskToEdit = null;
         });
 
     };
@@ -168,20 +273,91 @@ export const AppController = (() => {
     };
 
 
-
     const bindWorkspaceEvents = () => {
 
         mainDiv.addEventListener("click", (event) => {
 
-            const inlineAddTaskBtn = event.target.closest("#inline-add-task-btn");
+            // --- INLINE TASK CREATION ---
 
+            const inlineAddTaskBtn = event.target.closest("#inline-add-task-btn");
             if (inlineAddTaskBtn) {
                 populateProjectDropdown();
+
+                // 👇 NEW: Inject date right before opening
+                if (currentActiveRoute === "today") {
+                    const d = new Date();
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    document.getElementById("task-date").value = `${year}-${month}-${day}`;
+                } else {
+                    document.getElementById("task-date").value = ""; 
+                }
+
                 taskModal.showModal();
             }
 
-            const addProjectBtn = event.target.closest("#inline-add-project-btn");
+            // --- TASK EDIT TRIGGER ---
+            const editBtn = event.target.closest(".edit-task-btn");
+            if (editBtn) {
+                const taskRow = editBtn.closest(".task-row");
+                currentTaskToEdit = taskRow.dataset.id; 
 
+                // 1. Find the actual Task object in memory
+                let targetTask = null;
+                projectList.forEach(project => {
+                    const found = project.tasks.find(t => t._id === currentTaskToEdit);
+                    if (found) targetTask = found;
+                });
+
+                if (targetTask) {
+                    // 2. Populate the Project Dropdown specifically for the edit form
+                    const editProjectSelect = document.getElementById("edit-task-project");
+                    editProjectSelect.innerHTML = "";
+                    projectList.forEach(project => {
+                        const option = document.createElement("option");
+                        option.value = project.id;          
+                        option.textContent = project.name;  
+                        editProjectSelect.appendChild(option);
+                    });
+
+                    // 3. Inject the task's current data into the input fields
+                    document.getElementById("edit-task-title").value = targetTask.title;
+                    document.getElementById("edit-task-desc").value = targetTask.description || "";
+                    document.getElementById("edit-task-priority").value = targetTask.priority;
+                    document.getElementById("edit-task-project").value = targetTask.projectId;
+                    // --- Replace your single date line with this block ---
+
+                    if (targetTask.dueDate) {
+                        // 1. Create a real Date object from your saved date string
+                        const d = new Date(targetTask.dueDate);
+                        
+                        // 2. Extract the pieces and force them to be 2 digits (e.g., "06", not "6")
+                        const year = d.getFullYear();
+                        const month = String(d.getMonth() + 1).padStart(2, '0');
+                        const day = String(d.getDate()).padStart(2, '0');
+                        
+                        // 3. Assemble the strict YYYY-MM-DD string
+                        const html5CompatibleDate = `${year}-${month}-${day}`;
+                        
+                        // 4. Slap it into the modal
+                        document.getElementById("edit-task-date").value = html5CompatibleDate;
+                    } else {
+                        // If the task had no date, ensure the modal is cleared
+                        document.getElementById("edit-task-date").value = "";
+                    }
+                    
+                    // (Optional) Reformatting the Date string for the input field can be tricky 
+                    // depending on your browser format, but this handles the text block:
+                    // document.getElementById("edit-task-date").value = targetTask._dueDate ? ... ; 
+
+                    // 4. Open the Dialog
+                    document.getElementById("edit-task-modal").showModal();
+                }
+            }
+
+            // --- INLINE PROJECT CREATION UI ---
+            const addProjectBtn = event.target.closest("#inline-add-project-btn");
             if (addProjectBtn) {
                 document.getElementById("inline-add-project-btn").style.display = "none";
                 const form = document.getElementById("inline-project-form");
@@ -191,7 +367,7 @@ export const AppController = (() => {
                 document.getElementById("new-project-input").focus(); 
             }
 
-            // 👇 NEW: 3. The Cancel Check (Hide Form)
+            // The Cancel Check (Hide Form)
             const cancelProjectBtn = event.target.closest("#cancel-project-btn");
             if (cancelProjectBtn) {
                 document.getElementById("inline-project-form").style.display = "none";
@@ -199,22 +375,39 @@ export const AppController = (() => {
                 document.getElementById("inline-add-project-btn").style.display = "flex";
             }
 
+            // --- NAVIGATION & ROUTING ---
             const projectCard = event.target.closest(".project-card");
-
             if (projectCard) {
                 const projectId = projectCard.dataset.projectId;
                 currentActiveRoute = projectId;
                 renderCurrentView();
             }
 
-            const ring = event.target.closest(".priority-ring");
+            const breadcrumbBack = event.target.closest("#project-back-breadcrumb");
+            if (breadcrumbBack) {
+                currentActiveRoute = "my-projects"; // Sets the route back to the master list
+                renderCurrentView(); // Re-renders, which loads ProjectsDashboardView automatically
+            }
 
+            // --- TASK DELETION TRIGGER ---
+            const deleteBtn = event.target.closest(".delete-task-btn");
+            if (deleteBtn) {
+                const taskRow = deleteBtn.closest(".task-row");
+                
+                // Save the ID to our temporary state memory
+                currentTaskToDelete = taskRow.dataset.id; 
+                
+                // Pop open the modal
+                document.getElementById("delete-confirm-modal").showModal();
+            }
+
+            // --- TASK COMPLETION ANIMATION & LOGIC ---
+            const ring = event.target.closest(".priority-ring");
             if (ring) {
                 const taskRow = ring.closest(".task-row");
                 const taskId = taskRow.dataset.id;
 
                 // 1. READ THE COLOR: Grab whatever color your border is currently using
-            // 1. READ THE COLOR: Grab whatever color your border is currently using
                 const computedStyle = window.getComputedStyle(ring);
                 const ringColor = computedStyle.borderColor;
 
@@ -224,8 +417,6 @@ export const AppController = (() => {
                 ring.style.backgroundColor = ringColor; 
                 ring.style.opacity = "1";
                 
-                // (Notice the task row fade logic is completely gone—the row stays 100% solid)
-
                 // 3. THE SNAP BACK: Scale back down to 1 
                 setTimeout(() => {
                     ring.style.transform = "scale(1)";
@@ -250,16 +441,11 @@ export const AppController = (() => {
 
                 }, 280);
             }      
-
-            const breadcrumbBack = event.target.closest("#project-back-breadcrumb");
-            if (breadcrumbBack) {
-                currentActiveRoute = "my-projects"; // Sets the route back to the master list
-                renderCurrentView(); // Re-renders, which loads ProjectsDashboardView automatically
-            }
-        });
-
-        // Still inside bindWorkspaceEvents...
+            
+    });
     
+    
+        // --- FORM SUBMISSIONS WITHIN WORKSPACE ---
         mainDiv.addEventListener("submit", (event) => {
             // Only intercept if the submit came from our new inline project form
             if (event.target.id === "inline-project-form") {
@@ -272,14 +458,10 @@ export const AppController = (() => {
                 const newProject = new Project(projectName);
                 projectList.push(newProject);
                 
-                // 3. Re-render the Sidebar (to show the new folder icon)
-                // renderSidebarProjects(projectList);
+                // 3. Re-render the Projects Dashboard
                 ProjectsDashboardView.render(projectList);
             }
-
         });
-
-
 
     };
 
